@@ -2,34 +2,22 @@ import { useEffect, useRef, useState } from "react";
 import {
   addNewPragraph,
   breakAll,
-  getSelectionText,
+  cursorOut,
   removePragraph,
+  rightAroowCursor,
   showDropMenu,
-  showToolBar,
 } from "./controller";
 import DropMenu, { DropManuState } from "./dropMenu";
-import ToolBar, { ToolBarState } from "./toolBar";
+import ToolBar from "./toolBar";
 
 export function BasicWidget() {
   const wrapper = useRef<HTMLDivElement | null>(null);
   const st = new DropManuState(0, 0, false);
   const [dropMenuState, updateDropMenuState] = useState(st);
-  const barSt = new ToolBarState(0, 0, false, null);
-  const [barState, updateBarState] = useState(barSt);
 
   const updateDrop = (hight: any, left: any, show: boolean) => {
     const state = new DropManuState(left, hight, show);
     updateDropMenuState((prev) => (prev = state));
-  };
-
-  const updateBarSt = (
-    hight: any,
-    left: any,
-    show: boolean,
-    container: any
-  ) => {
-    const state = new ToolBarState(left, hight, show, container);
-    updateBarState((prev) => (prev = state));
   };
 
   useEffect(() => {
@@ -62,26 +50,14 @@ export function BasicWidget() {
               removePragraph(e);
             }
             break;
+          case "ArrowRight":
+            rightAroowCursor();
+            break;
           default:
         }
       });
 
-      wrapper.current.addEventListener("mouseup", (e: MouseEvent) => {
-        if (getSelectionText()!.length > 1) {
-          showToolBar(e, updateBarSt);
-          console.log("state changed");
-        } else {
-          updateBarSt(0, 0, false, null);
-        }
-        //show toolbar
-
-        //replace selected by
-        //h1 h2 replace the el
-        //bolding ... etc add span with its attribute
-      });
-
       wrapper.current.addEventListener("focusout", (e: FocusEvent) => {
-        updateBarSt(0, 0, false, null);
         updateDrop(0, 0, false);
       });
 
@@ -117,12 +93,7 @@ export function BasicWidget() {
         show={dropMenuState.show}
       />
 
-      <ToolBar
-        left={barState.left}
-        height={barState.height}
-        show={barState.show}
-        container={barState.container}
-      />
+      <ToolBar />
     </div>
   );
 }

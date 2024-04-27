@@ -1,47 +1,75 @@
 import React from "react";
 
 //the new added <p>
-export const pragraphNode = (document: Document) => {
+export const pragraphNode = () => {
   const newParagraph = document.createElement("p");
-  newParagraph.contentEditable = "true";
-  newParagraph.setAttribute("data-placeholder", 'Type "/" for commands...');
+  newParagraph.innerHTML = "";
+  newParagraph.classList.add("empty-p");
+  newParagraph.classList.add("our-p");
   return newParagraph;
 };
 
 //break all empty
 //except active one <p>
-export const breakAll = (e: Event) => {
-  const paragraphs = document.getElementById("wrapper")?.querySelectorAll("p"); // Select all paragraph elements
+export const breakAll = () => {
+  const paragraphs = document
+    .getElementById("newrapper")
+    ?.querySelectorAll("p"); // Select all paragraph elements
   // replace all empty p by br
+
   paragraphs?.forEach((paragraph) => {
-    if (
-      paragraph.textContent?.trim() === "" &&
-      paragraph !== document.activeElement
-    ) {
+    if (paragraph.textContent?.trim() === "") {
       paragraph.innerHTML = "<br>"; // Replace empty content with <br>
     }
   });
+
+  const selection = window.getSelection();
+
+  const curRange = selection?.getRangeAt(0);
+  const curP = curRange?.commonAncestorContainer as HTMLElement;
+  if (curP?.nodeName.toLocaleLowerCase() === "p" && !curP.textContent) {
+    curP.innerHTML = "";
+  }
 };
 
 // add new <p> when press enter
-export const addNewPragraph = (e: KeyboardEvent) => {
-  e.preventDefault();
+export const addNewP = () => {
+  const newP = pragraphNode();
 
-  //add new paragraph
-  //and if active p is empty insert<br>
-  const newP = pragraphNode(document);
-  // add element smoothly
-  const target = e.target as HTMLElement;
-  target.after(newP);
-  //if the current <p> empty break it.
-  if (target.innerHTML === "") {
-    target.innerHTML = "<br>";
+  const select = window.getSelection();
+  const curRange = select?.getRangeAt(0);
+
+  const startCo = curRange?.commonAncestorContainer;
+
+  const parentsNodes = ["p", "h1", "h2", "h3"];
+  if (parentsNodes.includes(startCo?.nodeName.toLocaleLowerCase()!)) {
+    const strEl = startCo as HTMLElement;
+    strEl.after(newP);
+  } else {
+    const parentP = startCo?.parentElement;
+    if (parentsNodes.includes(parentP?.nodeName.toLocaleLowerCase()!)) {
+      parentP?.after(newP);
+    } else {
+      const closestP = parentP?.closest("p");
+      if (parentsNodes.includes(closestP?.nodeName.toLocaleLowerCase()!)) {
+        closestP?.after(newP);
+      } else {
+        const wrapper = document.getElementById("newrapper");
+
+        wrapper?.append(newP);
+      }
+    }
   }
 
-  newP.focus();
+  const selection = window.getSelection();
+  const range = document.createRange();
+  range.selectNodeContents(newP);
+  range.collapse(false);
+  selection?.removeAllRanges();
+  selection?.addRange(range);
 };
 
-//remove <p> if its empty and user press Backspace
+/*remove <p> if its empty and user press Backspace
 export const removePragraph = (e: KeyboardEvent) => {
   const wrapper = document.getElementById("wrapper");
   const pElements = wrapper?.querySelectorAll("p");
@@ -60,9 +88,9 @@ export const removePragraph = (e: KeyboardEvent) => {
 
     target.remove();
   }
-};
+};*/
 
-//adjust cursor when remove the next <p>
+/*adjust cursor when remove the next <p>
 const posCursor = (e: KeyboardEvent) => {
   const target = e.target as HTMLElement;
   const prevElement = target.previousElementSibling as HTMLElement;
@@ -80,7 +108,7 @@ const posCursor = (e: KeyboardEvent) => {
   selection?.addRange(range); // add our range to the selection so window but cursor in the end of  the element range
 
   prevElement!.focus();
-};
+};*/
 
 //when user click right arrow get out marked or bold text
 export const rightAroowCursor = () => {
@@ -97,40 +125,6 @@ export const rightAroowCursor = () => {
   }
 };
 
-//fkn cursor
-export const cursorOut = () => {
-  const selection = window.getSelection();
-  const focusNode = selection?.focusNode;
-  console.log("foo: ", focusNode);
-  if (focusNode && selection.isCollapsed) {
-    // Check if focusNode is a text node
-    console.log("s 1 ");
-
-    if (
-      focusNode?.nodeName.toLowerCase() === "mark" ||
-      focusNode?.nodeName.toLowerCase() === "strong"
-    ) {
-      console.log("s 3 ");
-      // Get the text content of the marked element
-      const markedText = focusNode?.textContent;
-      // Check if the cursor position is at the end of the text
-      const cursorOffset = selection.getRangeAt(0).endOffset;
-      if (cursorOffset === markedText?.length) {
-        console.log("s 4");
-        const range = document.createRange();
-        range.selectNodeContents(focusNode!);
-        range.collapse(false); // Set the cursor to the end of the rang
-        //represent cursor position of user selection
-        selection?.removeAllRanges();
-        selection?.addRange(range);
-      }
-    }
-  }
-
-  // Cursor is not at the end of the last word in a marked element
-  return false;
-};
-
 export const getOutRangeHtml = (range: Range) => {
   range.collapse(false); // Set the cursor to the end of the rang
   const selection = window.getSelection(); //represent cursor position of user selection
@@ -139,9 +133,13 @@ export const getOutRangeHtml = (range: Range) => {
 };
 
 //show the drop menu function
-export const showDropMenu = (e: Event, updateState: Function) => {
-  const target = e.target as HTMLElement;
-  updateState(target!.offsetTop, target!.offsetLeft, true);
+export const showDropMenu = (updateState: Function) => {
+  const sel = window.getSelection();
+  const rang = sel?.getRangeAt(0);
+  const target = rang?.commonAncestorContainer as HTMLElement;
+  if (target.nodeName.toLocaleLowerCase() === "p") {
+    return updateState(target!.offsetTop, target!.offsetLeft, true);
+  }
 };
 
 //show editor toolbar function
@@ -183,7 +181,6 @@ export function addHeading(
 ) {
   event.stopPropagation();
   const newHeading = document.createElement(tagName);
-  newHeading.contentEditable = "true";
   newHeading.innerHTML = node!.innerHTML;
   node!.replaceWith(newHeading);
 }
@@ -196,7 +193,6 @@ export function addHeadingz(
 
   const parent = range.commonAncestorContainer.parentElement;
   const newHeading = document.createElement(tagName);
-  newHeading.contentEditable = "true";
   newHeading.innerHTML = parent!.innerHTML;
   parent!.replaceWith(newHeading);
 }
@@ -208,7 +204,6 @@ export function reverseToP(
   event.stopPropagation();
   const oldP = document.createElement("p");
   oldP.innerHTML = node!.innerHTML;
-  oldP.contentEditable = "true";
   node!.replaceWith(oldP);
 }
 
@@ -264,9 +259,21 @@ export function getBarActiveElements(range: Range, selection: Selection) {
   return nodeNames;
 }
 
-/* console.log("node outer: ", node?.outerHTML);
-  const reg = new RegExp("<" + "p" + "[^>]*>", "g");
-  const reg2 = new RegExp("</" + "p" + "[^>]*>", "g");
-  node.outerHTML = node.outerHTML
-    .replace(reg, `<${tagName} contenteditable='true'>`)
-    .replace(reg2, `</${tagName}>`);*/
+export function getThePossibleParent(range: Range) {
+  const parentsNodes = ["p", "h1", "h2", "h3"];
+  const str = range.commonAncestorContainer;
+  if (parentsNodes.includes(str!.nodeName.toLowerCase())) {
+    return str as HTMLElement;
+  } else {
+    const strPare = str.parentElement;
+    if (parentsNodes.includes(strPare!.tagName.toLowerCase())) {
+      return strPare;
+    } else {
+      const posParent = strPare?.parentElement;
+      if (parentsNodes.includes(posParent!.tagName.toLowerCase())) {
+        return posParent;
+      }
+      return posParent?.parentElement;
+    }
+  }
+}

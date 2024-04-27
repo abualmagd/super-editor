@@ -14,11 +14,13 @@ import {
 import {
   addHeading,
   getBarActiveElements,
+  getThePossibleParent,
   removeTagFromSelection,
   replaceSelectedText,
   reverseToP,
-} from "./controller";
+} from "./newController";
 import BarBtn from "./barBtn";
+import { keyboardKey } from "@testing-library/user-event";
 
 export default function ToolBar() {
   //remove state and work with document
@@ -27,7 +29,6 @@ export default function ToolBar() {
   );
 
   const [activeArray, updateActive] = useState<(string | undefined)[]>([]);
-  const [parent, updateParent] = useState("p");
 
   const handleHeading = (e: any, tageName: keyof HTMLElementTagNameMap) => {
     e.stopPropagation();
@@ -35,11 +36,9 @@ export default function ToolBar() {
     if (myState.container?.tagName.toLocaleLowerCase() === tageName) {
       reverseToP(myState.container, e);
       updateMyState(new ToolBarState(0, 0, false, null));
-      updateParent("p");
     } else {
       addHeading(e, tageName, myState.container);
       updateMyState(new ToolBarState(0, 0, false, null));
-      updateParent(tageName);
     }
   };
 
@@ -76,7 +75,7 @@ export default function ToolBar() {
   };
 
   useEffect(() => {
-    const wrapper = document.getElementById("wrapper");
+    const wrapper = document.getElementById("newrapper");
 
     wrapper?.addEventListener("mouseup", (e: MouseEvent) => {
       if (window.getSelection()) {
@@ -84,6 +83,9 @@ export default function ToolBar() {
         if (selection!.rangeCount > 0) {
           // Check if there's a selection
           const range = selection!.getRangeAt(0);
+          console.log("par: ", range.commonAncestorContainer);
+          /*get the parent node*/
+          const parentContainer = getThePossibleParent(range);
           const rect = range.getBoundingClientRect();
           //change active elements
           updateActive(() => getBarActiveElements(range, selection!));
@@ -94,7 +96,7 @@ export default function ToolBar() {
                 ? rect.top - rect.height
                 : rect.top - rect.height * 1.8,
               true,
-              selection?.anchorNode?.parentElement!
+              parentContainer!
             )
           );
           if (range.collapsed) {
@@ -107,6 +109,9 @@ export default function ToolBar() {
         updateMyState(new ToolBarState(0, 0, false, null));
       }
     });
+    wrapper?.addEventListener("keyup", (e: keyboardKey) => {
+      updateMyState(new ToolBarState(0, 0, false, null));
+    });
   }, []);
 
   const BackColor = (name: string) => {
@@ -114,7 +119,9 @@ export default function ToolBar() {
   };
 
   const HeadBackColor = (name: string) => {
-    return parent === name ? "gainsboro" : "transparent";
+    return myState.container?.tagName.toLocaleLowerCase() === name
+      ? "gainsboro"
+      : "transparent";
   };
 
   return (
@@ -206,15 +213,3 @@ export class ToolBarState {
     this.container = container;
   }
 }
-
-/**
- * -h1
- * -h2
- * -h3
- * -B
- * -/talic
- * -strike
- * -mark
- * -link
- * -code
- */

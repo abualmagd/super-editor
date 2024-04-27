@@ -12,12 +12,25 @@ code {
     monospace;
 }
 
-#wrapper p:empty:before{
+/* Reset form elements */
+button{
+  margin: 0;
+  padding: 0;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  background-color: transparent;
+  border: 0;
+}
+#wrapper p:empty::before{
   content:'Type "/" for commands...';
   pointer-events: none;
   display: block; /* For Firefox */
   color: gray;
 }
+
+
+
 
 .editor{
   display:flex;
@@ -30,21 +43,34 @@ code {
  margin-top: 20px;
  margin-left: 10px;
  background-color: aqua;
+
+ /*w-full resize-none border-none text-left  p-3 text-lg break-words space-y-1 space-x-1  h-80 outline-none inline  overflow-y-scroll"*/
+ resize: none;
+ border: none;
+ padding: 3px;
+ word-break: break-all;
+ word-spacing: 1px;
+ height: 800px;
+ outline: none;
+ display: inline;
 }
 
-p{
+
+ p{
   border: none;
   outline: none;
-  width: 500px;
   height: auto;
   margin-left: 20px;
+  word-wrap: break-word;
 }
-h1{
+ h1,h2,h3{
   border: none;
   outline: none;
+  word-wrap: break-word;
+  margin-left: 20px;
 
 }
-h1:empty:before{
+h1:empty:before,h2:empty:before,h3:empty:before{
   content:'Heading 1...';
   pointer-events: none;
   display: block; /* For Firefox */
@@ -71,3 +97,77 @@ h1:empty:before{
   border-radius: 6px;
   cursor: pointer;
 }
+
+
+
+  /* Tooltip container */
+  .tooltip {
+    position: relative;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    width: 35px;
+    height: 30px;
+    cursor: pointer;
+  }
+
+  .tooltip .tooltiptext {
+    visibility: hidden;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 1;
+    bottom: 120%;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    padding: 4px 5px;
+    text-align: center;
+    
+  }
+
+  .tooltip:hover .tooltiptext {
+    visibility: visible;
+  }
+
+  
+  .icon-container:hover{
+    background-color: gainsboro;
+  }
+
+  .icon-container{
+    text-align: center;
+    border-radius:10px;
+    padding: 2px 0px;
+    width: 80%;
+  }
+
+
+  .tooltiptext::after,.tool-bar-wrapper::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 5px;
+    border-style: solid;
+    border-color: black transparent transparent transparent;
+  }
+
+
+  /*for new basic*/
+
+
+
+
+
+
+  #newrapper .empty-p:empty::before{
+    content:'Type "/" for commands..';
+    pointer-events: none;
+    display: block; /* For Firefox */
+    color: gray;
+  }

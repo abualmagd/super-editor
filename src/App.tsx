@@ -1,14 +1,11 @@
-
-import './App.css';
-import { BasicWidget } from './components/basicWidget';
+import "./App.css";
+import { BasicWidget } from "./components/basicWidget";
+import { NewBasicWidget } from "./components/newBasicWidget";
 
 function App() {
   return (
     <div className="App">
-          <header className="App-header">
-      </header>
-      <BasicWidget />
-      
+      <NewBasicWidget />
     </div>
   );
 }
