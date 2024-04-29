@@ -74,6 +74,11 @@ export default function ToolBar() {
     }
   };
 
+  const handleLinking = (e: any) => {
+    //show input link popover
+    //LinkModal and pass to it function handle linking
+    //after user insert link add <a> with herf link
+  };
   useEffect(() => {
     const wrapper = document.getElementById("newrapper");
 
@@ -83,7 +88,7 @@ export default function ToolBar() {
         if (selection!.rangeCount > 0) {
           // Check if there's a selection
           const range = selection!.getRangeAt(0);
-          console.log("par: ", range.commonAncestorContainer);
+
           /*get the parent node*/
           const parentContainer = getThePossibleParent(range);
           const rect = range.getBoundingClientRect();

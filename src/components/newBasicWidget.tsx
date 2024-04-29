@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { showDropMenu, addNewP, breakAll } from "./newController";
+import { showDropMenu, addNewP, breakAll, handlePaste } from "./newController";
 import DropMenu, { DropManuState } from "./dropMenu";
 import ToolBar from "./popMenu";
-import { rightAroowCursor } from "./controller";
+import { rightAroowCursor } from "./newController";
 
 export function NewBasicWidget() {
   const wrapper = useRef<HTMLDivElement | null>(null);
@@ -57,6 +57,8 @@ export function NewBasicWidget() {
       wrapper.current.addEventListener("focusout", (e: FocusEvent) => {
         updateDrop(0, 0, false);
       });
+
+      wrapper.current.addEventListener("paste", handlePaste);
     }
   }, [wrapper]);
 

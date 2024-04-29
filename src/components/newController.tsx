@@ -112,18 +112,31 @@ const posCursor = (e: KeyboardEvent) => {
 
 //when user click right arrow get out marked or bold text
 export const rightAroowCursor = () => {
+  const parentsNodes = ["p", "h1", "h2", "h3"];
   const selection = window.getSelection();
   const curRange = selection?.getRangeAt(0);
   if (
-    curRange?.commonAncestorContainer.parentNode?.nodeName.toLocaleLowerCase() !==
-      "p" &&
+    !parentsNodes.includes(
+      curRange!.commonAncestorContainer.parentNode!.nodeName.toLocaleLowerCase()
+    ) &&
     selection?.anchorOffset! >= selection?.anchorNode?.textContent?.length!
   ) {
+    if (
+      curRange!.commonAncestorContainer.nodeName.toLocaleLowerCase() === "text"
+    ) {
+    }
     const parentEl = curRange?.commonAncestorContainer.parentElement;
-    console.log("anchor o: ", selection?.anchorOffset!);
     parentEl?.after("\u200B");
   }
 };
+
+/**
+ * 
+ (parentsNodes.includes(
+      curRange!.commonAncestorContainer.nodeName.toLocaleLowerCase()
+    ) &&
+      selection?.anchorOffset! >= selection?.anchorNode?.textContent?.length!)
+ */
 
 export const getOutRangeHtml = (range: Range) => {
   range.collapse(false); // Set the cursor to the end of the rang
@@ -274,6 +287,18 @@ export function getThePossibleParent(range: Range) {
         return posParent;
       }
       return posParent?.parentElement;
+    }
+  }
+}
+
+export function handlePaste(e: ClipboardEvent) {
+  e.preventDefault();
+
+  if (e.clipboardData) {
+    const content = e.clipboardData.getData("text/plain");
+    if (window.getSelection()) {
+      const range = window.getSelection()?.getRangeAt(0);
+      range?.insertNode(document.createTextNode(content));
     }
   }
 }
